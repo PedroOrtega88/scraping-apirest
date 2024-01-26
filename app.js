@@ -18,10 +18,10 @@ console.log(html); //Imprimo todo el html del url escrapeado
     const links = []; //creo una constante vacía = enlace
     $('article class="c c-d c--m "> ').each((index, element) => { //cheerio clase articulo  enlace 
       const link = $(element).attr('href'); //lo definimos por su attributo href
-      links.push(link); //subo cada enlace al array 
+      links.push(link); //subo cada enlace al ar
     });
   const imagenes= [];// creo una constante vacia = imagenes
- $('img').each((index, element) => {//cheer
+ $('img').each((index, element) => {
     const imagen = $(element).attr('src');
    imagenes.push(imagen);
   });
@@ -32,9 +32,9 @@ console.log(html); //Imprimo todo el html del url escrapeado
     });
 
    const titulo= [];
-    $'<header class="c_h">).each((index, element) => {
+    $('.articulo a').each((index, element) => {
       const enlace = $(element).attr('href');
-      titulo.push(enlace);
+      enlaces.push(enlace);
   });
     console.log(enlaces);
 

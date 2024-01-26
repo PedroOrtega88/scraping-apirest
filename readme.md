@@ -10,11 +10,11 @@ Este proyecto tiene como objetivo realizar scraping de información desde la pá
 - Crea un servidor http con express
 - Puedes usar si ves necesario:
 ```javascript
-// Middleware para manejar datos JSON
-app.use(express.json());
 
-// Middleware para manejar datos de formularios URL-encoded
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // Middleware para manejar datos JSON
+
+
+app.use(express.urlencoded({ extended: true })); // Middleware para manejar datos de formularios URL-encoded
 ```
 - Puedes hacer tu proyecto todo lo modular que quieras.
 

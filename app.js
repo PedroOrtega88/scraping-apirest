@@ -1,56 +1,81 @@
+const express = require('express');//requiero librerias
+const app = express();//requiero librerias
+const axios = require('axios');//requiero librerias
+const cheerio = require('cheerio');//requiero librerias
+const fs = require('fs');//requiero librerias
 
-const express = require('express');
-const cheerio = require('cheerio');
-const axios = require('axios');
+const url = 'https://elpais.com/ultimas-noticias/';//Defino url a escrapear -->URL secundaria
+const principalURL = 'https://elpais.com';//Defino url a escrapear -->URL principal
 
-const app = express();
-const PORT = 3000;
+app.get('/', async (req, res) => { //Establezco la pagina inicial con asincronia
+  try {
+    const response = await axios.get(url); //creo asincronia, requiriendo axios y anexandome a url
+    const html = response.data;  //creo una variable html que es igual a la respuesta del scrapping
+    const $ = cheerio.load(html);//creo una constante dolar =cheerio porque me permite modificar el DOM
 
-const url = 'https://es.wikipedia.org/wiki/Categor%C3%ADa:M%C3%BAsicos_de_rap';
+console.log(html); //Imprimo todo el html del url escrapeado
 
-//  noticia por índice
-app.get('/noticias/:index', (req, res) => {
-    const index = req.params.index;
-    leerDatos();
-    const noticia = noticias[index];
-    res.json(noticia);
+    const links = []; //creo una constante vacía = enlace
+    $('article class="c c-d c--m "> ').each((index, element) => { //cheerio clase articulo  enlace 
+      const link = $(element).attr('href'); //lo definimos por su attributo href
+      links.push(link); //subo cada enlace al array 
+    });
+  const imagenes= [];// creo una constante vacia = imagenes
+ $('img').each((index, element) => {//cheer
+    const imagen = $(element).attr('src');
+   imagenes.push(imagen);
   });
+  const descripciones = [];
+ $('.articulo a').each((index, element) => {
+   const descripcion = $(element).attr('href');
+   descripciones.push(descripcion);
+    });
 
-// Crear nueva noticia
-app.post('/noticias', (req, res) => {
-    const nuevaNoticia = req.body;
-    leerDatos();
-    noticias.push(nuevaNoticia);
-    guardarDatos();
-    res.json({ message: 'Noticia creada exitosamente.' });
+   const titulo= [];
+    $'<header class="c_h">).each((index, element) => {
+      const enlace = $(element).attr('href');
+      titulo.push(enlace);
   });
+    console.log(enlaces);
 
 
 
 
-// Función para realizar el scraping de una página
-function scrap(pageUrl) {
-    return app.get(pageUrl)
-        .then(response => {
-            const $ = cheerio.load(response.text);
 
-            // Recopilar datos 
-            const pageTitle = $('h1').text();
-            const images = $('img').map((index, element) => $(element).attr('src')).get();
-            const paragraphs = $('p').map((index, element) => $(element).text()).get();
+   // console.log(links);
+    const noticias = [];
 
-            return {
-                title: pageTitle,
-                images,
-                paragraphs,
-            };
-        })
-        .catch(error => {
-            console.error('Error de servidor:', error);
-            return null;
-        });
-}
+    for (const link of links) {
+      const innerURL = `${principalURL}${link}`;
+      const response = await axios.get(innerURL);
+      const innerPage = response.data;
+      const $ = cheerio.load(innerPage);
 
-app.listen(PORT, () => {
-    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+      const noticia = {
+        titulo: $('h1').text(),
+        imagen: $('.foto-principal img').attr('src'),
+        descripcion: $('.articulo p').text(),
+        enlace: innerURL,
+      };
+
+      noticias.push(noticia);
+    }
+
+    
+    res.send(`
+    <h2>Enlaces</h2>    
+    <ul>${links.map(link=> `<li><a href="${url}${link}">${link}</a></li>`).join(``)}
+    <ul>${imagenes.map(imagen=> `<li><a href="${url}${imagen}">${imagen}</a></li>`).join(``)}
+    <ul>${descripciones.map(descripcion=> `<li><a href="${url}${descripcion}">${descripcion}</a></li>`).join(``)}
+    <ul>${enlaces.map(enlace=> `<li><a href="${url}${enlace}">${enlace}</a></li>`).join(``)} 
+
+       `);
+    
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Express está escuchando en el puerto http://localhost:3000');
 });
